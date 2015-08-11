@@ -185,6 +185,8 @@ File a bug
   https://github.com/playfire/django-email-from-template/issues
 """
 
+import json
+
 from django.conf import settings
 from django.template import Context
 from django.core.mail import get_connection
@@ -258,6 +260,19 @@ def send_mail(recipient_list, template, context=None, from_email=None, send_mail
     if not send_mail:
         return mail
 
+    mail.extra_headers["X-SMTPAPI"] = json.dumps({
+        "filters": {
+            "ganalytics": {
+                "settings": {
+                    "enable": 1,
+                    "utm_source": "sendgrid",
+                    "utm_medium": "email",
+                    "utm_campaign": "all_sendgrid_emails"
+                }
+            }
+        }
+    })
+    
     return mail.send()
 
 def mail_admins(template, context=None, from_email=None, *args, **kwargs):
